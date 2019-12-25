@@ -1,19 +1,20 @@
 package printer.hys.saj.hhj
 
 fun printer(priorities: IntArray, location: Int): Int {
-    val newPriorities = priorities.mapIndexed { index, i ->
-        val isMyDocument = location == index
-        Pair(i, isMyDocument)
-    }
-    return print(newPriorities.toTypedArray(), 0, null)
+    val newPriorities = priorities
+        .mapIndexed { index, i -> Pair(i, location == index) }
+    return print(newPriorities, 0)
 }
 
-fun print(priorities: Array<Pair<Int, Boolean>>, count: Int, printedDoc: Pair<Int, Boolean>?): Int {
-    if (printedDoc?.second == true) return count
+fun print(priorities: List<Pair<Int, Boolean>>, count: Int): Int {
+    val nextDoc = priorities.first()
+    if (priorities.find { it.first > nextDoc.first } != null) {
+        return print(priorities.drop(1).plus(nextDoc), count)
+    }
 
-    val nextPrints = priorities.drop(1)
-    
-    if (nextPrints.find { it.first > priorities.first().first } == null)
-        return print(nextPrints.toTypedArray(), count + 1, priorities.first())
-    return print((nextPrints + priorities.take(1)).toTypedArray(), count, null)
+    if (!nextDoc.second) {
+        return print(priorities.drop(1), count + 1)
+    }
+
+    return count + 1
 }
